@@ -24,12 +24,12 @@ public class RadioParser {
 	}
 
 	public static void main(String[] args) {
-		try {
+		/*try {
 			RadioParser myParser = new RadioParser("RadioStations.txt");
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
+		}*/
 
 	}
 

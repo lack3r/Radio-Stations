@@ -1,7 +1,39 @@
 import java.util.Arrays;
 
+/**
+ * @author Andreas Loizou
+ *
+ */
 public class RadioStation {
 
+	protected String stationRawInfo;/*The information for a radio station exactly as written in the input file*/
+	protected String title;			/*The title of the radio station*/
+	protected String description;	/*The description of the radio station*/
+	protected String genre;			/*The genre of the radio station*/
+	protected String country;		/*The country of the radio station*/
+	protected String language;		/*The language of the radio station*/
+	protected String[] URLs;		/*The links of the Radio station that can be used to listen online. The input file contains up to 6*/
+	protected String ParsedStringForm; /*The title of the radio station*/
+	protected static final int EXPECTED_FIELDS = 11; 	/*The title of the radio station*/
+	protected static final int MAX_URLS = 6; 			/*How many URLs the input file might contain for each Radio Station*/
+	protected static final String SPLIT_REGEX = "\t"; 	/*How the fields of the input line are splitted.*/
+	protected static final String JOIN_REGEX = "\t"; 	/*How the fields of the output line are joined.*/
+
+	
+	/**
+	 * @author An Enum that defines the position of each field in the input file
+	 *
+	 */
+	static enum FieldPosition {TITLE(0),DESCRIPTION(1),GENRE(2),COUNTRY(3),LANGUAGE(4),URLS(5);
+		private int value;  
+		private FieldPosition(int value){  
+			this.value=value;  
+	}  	
+	
+	}
+	/* (non-Javadoc)
+	 * @see java.lang.Object#hashCode()
+	 */
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -22,6 +54,9 @@ public class RadioStation {
 		return result;
 	}
 
+	/* (non-Javadoc)
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -71,169 +106,132 @@ public class RadioStation {
 		return true;
 	}
 
+	/**
+	 * @return The raw info for the radio station as read from the input file
+	 */
 	public String getStationRawInfo() {
 		return stationRawInfo;
 	}
 
-	public void setStationRawInfo(String stationRawInfo) {
-		this.stationRawInfo = stationRawInfo;
-	}
-
+	/**
+	 * @return The title of the Radio Station
+	 */
 	public String getTitle() {
 		return title;
 	}
 
-	public void setTitle(String title) {
-		this.title = title;
-	}
-
+	/**
+	 * @return The description of the Radio Station
+	 */
 	public String getDescription() {
 		return description;
 	}
 
-	public void setDescription(String description) {
-		this.description = description;
-	}
-
+	/**
+	 * @return The genre of the Radio Station
+	 */
 	public String getGenre() {
 		return genre;
 	}
 
-	public void setGenre(String genre) {
-		this.genre = genre;
-	}
-
+	/**
+	 * @return the Country of the Radio Station
+	 */
 	public String getCountry() {
 		return country;
 	}
 
-	public void setCountry(String country) {
-		this.country = country;
-	}
-
+	/**
+	 * @return The string of the radio station after the string is parsed. It should match the stationRawInfo.
+	 */
 	public String getParsedStringForm() {
 		return ParsedStringForm;
 	}
 
-	public void setParsedStringForm(String parsedStringForm) {
-		ParsedStringForm = parsedStringForm;
-	}
-
+	/**
+	 * @return The language of the Radio Station
+	 */
 	public String getLanguage() {
 		return language;
 	}
 
-	public void setLanguage(String language) {
-		this.language = language;
-	}
-
-	String stationRawInfo;
-	String title;
-	String description;
-	String genre;
-	String country;
-	String language;
-	String[] URLs;
-	String ParsedStringForm;
-	static final int expectedFields = 11;
-
+	/**
+	 * @param stationRawInfo. We get one line with all the information of the radio station in a raw form. The constructor tries to create the RadioStation object based on the raw information
+	 */
 	public RadioStation(String stationRawInfo) {
 
 		if (stationRawInfo == null) {
 			throw new NullPointerException("stationRawInfo is null");
 		}
 		this.stationRawInfo = stationRawInfo;
-		String[] infoParsed = stationRawInfo.split("\t");
-		if (infoParsed.length != expectedFields) {
+		String[] infoParsed = stationRawInfo.split(SPLIT_REGEX);
+		if (infoParsed.length != EXPECTED_FIELDS) {
 			throw new IllegalArgumentException("ERROR: " + stationRawInfo
-					+ " cannot be parsed into " + expectedFields + " fields.");
+					+ " cannot be parsed into " + EXPECTED_FIELDS + " fields.");
 		}
-		URLs = new String[6];
-		title = infoParsed[0];
-		description = infoParsed[1];
-		genre = infoParsed[2];
-		country = infoParsed[3];
-		language = infoParsed[4];
-		if (!infoParsed[5].toString().equals("-")) {
-			URLs[0] = infoParsed[5];
-		}
-		if (!infoParsed[6].toString().equals("-")) {
-			URLs[1] = infoParsed[6];
-		}
-		if (!infoParsed[7].toString().equals("-")) {
-			URLs[2] = infoParsed[7];
-		}
-		if (!infoParsed[8].toString().equals("-")) {
-			URLs[3] = infoParsed[8];
-		}
-		if (!infoParsed[9].toString().equals("-")) {
-			URLs[4] = infoParsed[9];
-		}
-		if (!infoParsed[10].toString().equals("-")) {
-			URLs[5] = infoParsed[10];
+		URLs = new String[MAX_URLS];
+		title = infoParsed[FieldPosition.TITLE.value];
+		description = infoParsed[FieldPosition.DESCRIPTION.value];
+		genre = infoParsed[FieldPosition.GENRE.value];
+		country = infoParsed[FieldPosition.COUNTRY.value];
+		language = infoParsed[FieldPosition.LANGUAGE.value];
+		int urlOffset = FieldPosition.URLS.value;
+		for (int urlNo=urlOffset;urlNo<urlOffset+MAX_URLS;urlNo++){
+			if (!infoParsed[urlNo].toString().equals("-")) {
+				URLs[urlNo-urlOffset] = infoParsed[urlNo];
+			}
 		}
 		createParsedStringForm();
 	}
 
+	/**
+	 * 
+	 */
 	private void createParsedStringForm() {
 		StringBuffer sb = new StringBuffer();
 		sb.append(title);
-		sb.append("\t");
+		sb.append(JOIN_REGEX);
 		sb.append(description);
-		sb.append("\t");
+		sb.append(JOIN_REGEX);
 		sb.append(genre);
-		sb.append("\t");
+		sb.append(JOIN_REGEX);
 		sb.append(country);
-		sb.append("\t");
+		sb.append(JOIN_REGEX);
 		sb.append(language);
-		sb.append("\t");
-		if (!(URLs[0] == null)) {
-			sb.append(URLs[0]);
-		} else {
-			sb.append("-");
-		}
-		sb.append("\t");
-		if (!(URLs[1] == null)) {
-			sb.append(URLs[1]);
-		} else {
-			sb.append("-");
-		}
-		sb.append("\t");
-		if (!(URLs[2] == null)) {
-			sb.append(URLs[2]);
-		} else {
-			sb.append("-");
-		}
-		sb.append("\t");
-		if (!(URLs[3] == null)) {
-			sb.append(URLs[3]);
-		} else {
-			sb.append("-");
-		}
-		sb.append("\t");
-		if (!(URLs[4] == null)) {
-			sb.append(URLs[4]);
-		} else {
-			sb.append("-");
-		}
-		sb.append("\t");
-		if (!(URLs[5] == null)) {
-			sb.append(URLs[5]);
-		} else {
-			sb.append("-");
+		sb.append(JOIN_REGEX);
+		
+		for (int urlNo=0;urlNo<MAX_URLS;urlNo++){
+			if (!(URLs[urlNo] == null)) {
+				sb.append(URLs[urlNo]);
+			} else {
+				sb.append("-");
+			}
+			
+			if(urlNo<MAX_URLS-1){
+				sb.append(JOIN_REGEX);
+			}
 		}
 		ParsedStringForm = sb.toString();
 	}
 
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
 	@Override
 	public String toString() {
 		return ParsedStringForm;
 	}
 
+	/**
+	 * Print the Radio Station in a pretty form
+	 */
 	public void prettyPrint() {
 		System.out.println(ParsedStringForm);
 	}
 
+	/**
+	 * @param args Is not used
+	 */
 	public static void main(String[] args) {
 		RadioStation first = new RadioStation(
 				"WMBR 88.1 FM Cambridge, MA	From MIT, First on your FM Dial. (\"College Station\")	College/University	USA	English	http://headphones.mit.edu:8000/	http://wmbr.mit.edu/WMBR_live_128.m3u	http://www.wmbr.org/WMBR_live_128.m3u	http://18.7.25.128/WMBR_live_128.m3u	http://headphones.mit.edu:8000	http://wmbr.org/WMBR_live_128.m3u");
